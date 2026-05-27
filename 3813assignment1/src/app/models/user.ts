@@ -8,3 +8,8 @@ export interface User {
     roles: Role[];
     groups: string[];
 }
+
+export interface AuthSession {
+  token: string;
+  user: User;
+}

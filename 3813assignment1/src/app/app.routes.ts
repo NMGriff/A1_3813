@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 
-
 import { LoginComponent } from './auth/login/login.component';
 import { ChatLayoutComponent } from './chat/chat-layout/chat-layout.component';
 import { ChatWindowComponent } from './chat/chat-window/chat-window.component';
@@ -14,11 +13,12 @@ import { superAdminGuard } from './guards/super-admin.guard';
 import { groupAdminGuard } from './guards/group-admin.guard';
 
 export const routes: Routes = [
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   {
     path: '',
     component: ChatLayoutComponent,
-    canActivate: [authGuard],               
+    canActivate: [authGuard],               // minimal protection for authenticated users
     children: [
       { path: '', component: ChatWindowComponent },
       { path: 'admin/super', component: SuperAdminPanelComponent, canActivate: [superAdminGuard] },
