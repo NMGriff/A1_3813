@@ -1,9 +1,34 @@
-<div class="container mt-4">
-  <h2>Home</h2>
+<main class="chat-page">
+  <aside class="channel-sidebar">
+    <header>
+      <h2>Channels</h2>
+    </header>
 
-  <p>
-    <a *ngIf="!isLoggedIn()" routerLink="/login" class="btn btn-primary me-2">Login</a>
-    <a *ngIf="!isLoggedIn()" routerLink="/register" class="btn btn-primary me-2">Register</a>
-    <a *ngIf="isLoggedIn()" routerLink="/profile" class="btn btn-secondary">Profile</a>
-  </p>
-</div>
+    <nav>
+      <button
+        *ngFor="let channel of channels"
+        type="button"
+        class="channel-button"
+        (click)="selectChannel(channel.id)"
+      >
+        <span>{{ channel.name }}</span>
+        <small>{{ channel.messages.length }} messages</small>
+      </button>
+    </nav>
+  </aside>
+
+  <section class="chat-window">
+    <header class="chat-header">
+      <div>
+        <h1>{{ selectedChannel.name }}</h1>
+        <p>{{ selectedChannel.description }}</p>
+      </div>
+    </header>
+
+    <app-message-history [messages]="selectedChannel.messages"></app-message-history>
+
+    <app-message-input
+      (sendMessage)="addMessage($event)"
+    ></app-message-input>
+  </section>
+</main>

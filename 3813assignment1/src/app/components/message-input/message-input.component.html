@@ -1,0 +1,12 @@
+<form class="message-input" (ngSubmit)="send()">
+  <label for="messageText" class="visually-hidden">Message</label>
+  <input
+    id="messageText"
+    type="text"
+    name="message"
+    [(ngModel)]="message"
+    placeholder="Enter Message"
+    autocomplete="off"
+  />
+  <button type="submit">Send</button>
+</form>

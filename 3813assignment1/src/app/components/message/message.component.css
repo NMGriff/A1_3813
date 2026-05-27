@@ -1,0 +1,20 @@
+.chat-message {
+  margin: 0;
+}
+
+.chat-message-header {
+  display: flex;
+  gap: 0.75rem;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 0.35rem;
+  padding: 0;
+}
+
+.chat-message-header small {
+  white-space: nowrap;
+}
+
+.chat-message p {
+  margin: 0;
+}
