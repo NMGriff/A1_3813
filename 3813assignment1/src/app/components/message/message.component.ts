@@ -1,9 +1,11 @@
 import { Component, Input } from '@angular/core';
 
 export type ChatMessage = {
+  id: number;
   author: string;
   time: string;
   body: string;
+  createdAt: string;
   isCurrentUser?: boolean;
 };
 

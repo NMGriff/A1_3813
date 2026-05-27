@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { MessageHistoryComponent } from '../../components/message-history/message-history.component';
 import { MessageInputComponent } from '../../components/message-input/message-input.component';
 import { ChatMessage } from '../../components/message/message.component';
@@ -14,7 +15,7 @@ import { ChatChannel, ChatService } from '../../services/chat.service';
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
   channels: ChatChannel[] = [
     {
       id: 'global',
@@ -27,6 +28,7 @@ export class HomeComponent implements OnInit {
   selectedChannelId = this.channels[0].id;
   isLoading = false;
   errorMessage = '';
+  private messageCreatedSubscription?: Subscription;
 
   constructor(
     private authService: AuthService,
@@ -36,6 +38,13 @@ export class HomeComponent implements OnInit {
 
   ngOnInit() {
     this.loadChannels();
+    this.messageCreatedSubscription = this.chatService.onMessageCreated().subscribe(({ channelId, message }) => {
+      this.addMessageToChannel(channelId, message);
+    });
+  }
+
+  ngOnDestroy() {
+    this.messageCreatedSubscription?.unsubscribe();
   }
 
   get selectedChannel(): ChatChannel {
@@ -80,22 +89,7 @@ export class HomeComponent implements OnInit {
     this.errorMessage = '';
 
     this.chatService.sendMessage(channelId, author, message).subscribe({
-      next: (savedMessage) => {
-        this.channels = this.channels.map((channel) => {
-          if (channel.id !== channelId) return channel;
-
-          return {
-            ...channel,
-            messages: [
-              ...channel.messages,
-              {
-                ...savedMessage,
-                isCurrentUser: true
-              }
-            ]
-          };
-        });
-      },
+      next: () => {},
       error: () => {
         this.errorMessage = 'Unable to send message.';
       }
@@ -113,5 +107,27 @@ export class HomeComponent implements OnInit {
         isCurrentUser: message.author === username
       }))
     }));
+  }
+
+  private addMessageToChannel(channelId: string, message: ChatMessage) {
+    const user = this.authService.getUser();
+    const username = user?.valid ? user.username : '';
+
+    this.channels = this.channels.map((channel) => {
+      if (channel.id !== channelId || channel.messages.some((existingMessage) => existingMessage.id === message.id)) {
+        return channel;
+      }
+
+      return {
+        ...channel,
+        messages: [
+          ...channel.messages,
+          {
+            ...message,
+            isCurrentUser: message.author === username
+          }
+        ]
+      };
+    });
   }
 }

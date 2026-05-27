@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { io, Socket } from 'socket.io-client';
 import { ChatMessage } from '../components/message/message.component';
 
 export type ChatChannel = {
@@ -15,11 +16,17 @@ export type CreateChannelRequest = {
   description: string;
 };
 
+export type MessageCreatedEvent = {
+  channelId: string;
+  message: ChatMessage;
+};
+
 @Injectable({
   providedIn: 'root'
 })
 export class ChatService {
   private apiUrl = 'http://localhost:3000/api';
+  private socket: Socket = io('http://localhost:3000');
 
   constructor(private http: HttpClient) {}
 
@@ -35,6 +42,18 @@ export class ChatService {
     return this.http.post<ChatMessage>(`${this.apiUrl}/channels/${channelId}/messages`, {
       author,
       body
+    });
+  }
+
+  onMessageCreated(): Observable<MessageCreatedEvent> {
+    return new Observable<MessageCreatedEvent>((subscriber) => {
+      const handler = (event: MessageCreatedEvent) => subscriber.next(event);
+
+      this.socket.on('message:created', handler);
+
+      return () => {
+        this.socket.off('message:created', handler);
+      };
     });
   }
 }

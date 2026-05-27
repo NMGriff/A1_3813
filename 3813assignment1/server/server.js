@@ -1,5 +1,15 @@
 const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
+
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: 'http://localhost:4200',
+    methods: ['GET', 'POST']
+  }
+});
 
 app.use(express.json()); 
 
@@ -171,9 +181,13 @@ app.post('/api/channels/:channelId/messages', (req, res) => {
 
   const message = createMessage(author, body.trim());
   channel.messages.push(message);
+  io.emit('message:created', {
+    channelId: channel.id,
+    message
+  });
 
   return res.status(201).json(message);
 });
 
 const PORT = 3000;
-app.listen(PORT, () => console.log(`API running on http://localhost:${PORT}`));
+server.listen(PORT, () => console.log(`API running on http://localhost:${PORT}`));
