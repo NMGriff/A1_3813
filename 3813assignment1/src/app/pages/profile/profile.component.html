@@ -1,0 +1,35 @@
+<div class="container mt-4">
+  <h2>Profile</h2>
+<div *ngIf="user; else notLoggedIn"> 
+ <div class="mb-2">
+      <label>Username</label>
+      <input [(ngModel)]="user.username" name="username" />
+    </div>
+
+    <div class="mb-2">
+      <label>Birthdate</label>
+      <input [(ngModel)]="user.birthdate" name="birthdate" />
+    </div>
+
+    <div class="mb-2">
+      <label>Age</label>
+      <input type="number" [(ngModel)]="user.age" name="age" />
+    </div>
+
+    <div class="mb-3">
+      <label>Email</label>
+      <input [(ngModel)]="user.email" name="email" />
+    </div>
+
+    <button type="button" (click)="save()">Save</button>
+  </div>
+
+  <ng-template #notLoggedIn>
+    <div class="alert alert-warning">
+      No user logged in. Please go to Login.
+    </div>
+  </ng-template>
+
+  <a routerLink="/login" class="btn btn-primary me-2">Back to Login</a>
+  <a routerLink="/" class="btn btn-secondary">Home</a>
+</div>
