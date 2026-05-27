@@ -1,1 +1,9 @@
+<nav>
+  <button *ngIf="isLoggedIn()" type="button" routerLink="/">Chat</button>
+  <button *ngIf="!isLoggedIn()" type="button" routerLink="/login">Login</button>
+  <button *ngIf="!isLoggedIn()" type="button" routerLink="/register">Register</button>
+  <button *ngIf="isLoggedIn()" type="button" routerLink="/profile">Profile</button>
+  <button *ngIf="isLoggedIn()" type="button" (click)="logout()">Logout</button>
+</nav>
+
 <router-outlet></router-outlet>

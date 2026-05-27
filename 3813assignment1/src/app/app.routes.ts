@@ -1,30 +1,16 @@
 import { Routes } from '@angular/router';
-
-import { LoginComponent } from './auth/login/login.component';
-import { ChatLayoutComponent } from './chat/chat-layout/chat-layout.component';
-import { ChatWindowComponent } from './chat/chat-window/chat-window.component';
-import { SuperAdminPanelComponent } from './admin/super-admin-panel/super-admin-panel.component';
-import { GroupAdminPanelComponent } from './admin/group-admin-panel/group-admin-panel.component';
-import { SettingsComponent } from './profile/settings/settings.component';
-
-
+import { HomeComponent } from './pages/home/home.component';
+import { LoginComponent } from './pages/login/login.component';
+import { ProfileComponent } from './pages/profile/profile.component';
+import { RegisterComponent } from './pages/register/register.component';
+import { CreateChannelComponent } from './pages/create-channel/create-channel.component';
 import { authGuard } from './guards/auth.guard';
-import { superAdminGuard } from './guards/super-admin.guard';
-import { groupAdminGuard } from './guards/group-admin.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: 'login', component: LoginComponent },
-  {
-    path: '',
-    component: ChatLayoutComponent,
-    canActivate: [authGuard],               // minimal protection for authenticated users
-    children: [
-      { path: '', component: ChatWindowComponent },
-      { path: 'admin/super', component: SuperAdminPanelComponent, canActivate: [superAdminGuard] },
-      { path: 'admin/group', component: GroupAdminPanelComponent, canActivate: [groupAdminGuard] },
-      { path: 'settings', component: SettingsComponent },
-    ],
-  },
-  { path: '**', redirectTo: '' },
+    { path: '', component: HomeComponent, canActivate: [authGuard] },
+    { path: 'login', component: LoginComponent },
+    { path: 'register', component: RegisterComponent },
+    { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
+    { path: 'channels/new', component: CreateChannelComponent, canActivate: [authGuard] },
+    { path: '**', redirectTo: '' }, 
 ];

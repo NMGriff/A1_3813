@@ -1,0 +1,38 @@
+<main class="create-channel-page">
+  <section class="create-channel-panel">
+    <header>
+      <h1>Create channel</h1>
+      <p>Add a new place for conversations.</p>
+    </header>
+
+    <form (ngSubmit)="createChannel()">
+      <label for="channel-name">Name</label>
+      <input
+        id="channel-name"
+        name="name"
+        type="text"
+        [(ngModel)]="name"
+        maxlength="40"
+        required
+      />
+
+      <label for="channel-description">Description</label>
+      <textarea
+        id="channel-description"
+        name="description"
+        [(ngModel)]="description"
+        maxlength="140"
+        rows="4"
+      ></textarea>
+
+      <p *ngIf="errorMessage" class="form-error">{{ errorMessage }}</p>
+
+      <div class="form-actions">
+        <button type="button" routerLink="/">Cancel</button>
+        <button type="submit" [disabled]="isSaving">
+          {{ isSaving ? 'Creating...' : 'Create channel' }}
+        </button>
+      </div>
+    </form>
+  </section>
+</main>

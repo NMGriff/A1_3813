@@ -1,0 +1,82 @@
+.chat-page {
+  display: grid;
+  grid-template-columns: 18rem minmax(0, 1fr);
+  gap: 1rem;
+  height: calc(100vh - 7rem);
+  min-height: 0;
+  width: 100%;
+  max-width: none;
+}
+
+.channel-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.channel-sidebar header {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0;
+}
+
+.channel-sidebar h2,
+.chat-header h1,
+.chat-header p {
+  margin: 0;
+}
+
+.channel-sidebar nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.channel-button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  margin: 0;
+  text-align: left;
+}
+
+.channel-button span {
+  font-weight: 700;
+}
+
+.create-channel-button {
+  width: 100%;
+  margin: 0;
+}
+
+.chat-window {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-width: 0;
+  min-height: 0;
+  margin-bottom: 0;
+  overflow: hidden;
+}
+
+.chat-header {
+  padding-bottom: 1rem;
+}
+
+.chat-status {
+  margin: 0 0 0.75rem;
+  font-size: 0.9rem;
+}
+
+.chat-status-error {
+  color: #b42318;
+}
+
+@media (max-width: 767px) {
+  .chat-page {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+}

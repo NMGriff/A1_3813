@@ -1,0 +1,41 @@
+<main class="chat-page">
+  <aside class="channel-sidebar">
+    <header>
+      <h2>Channels</h2>
+    </header>
+
+    <nav>
+      <button
+        *ngFor="let channel of channels"
+        type="button"
+        class="channel-button"
+        (click)="selectChannel(channel.id)"
+      >
+        <span>{{ channel.name }}</span>
+        <small>{{ channel.messages.length }} messages</small>
+      </button>
+    </nav>
+
+    <button type="button" class="create-channel-button" routerLink="/channels/new">
+      Create channel
+    </button>
+  </aside>
+
+  <section class="chat-window">
+    <header class="chat-header">
+      <div>
+        <h1>{{ selectedChannel.name }}</h1>
+        <p>{{ selectedChannel.description }}</p>
+      </div>
+    </header>
+
+    <app-message-history [messages]="selectedChannel.messages"></app-message-history>
+
+    <p *ngIf="isLoading" class="chat-status">Loading messages...</p>
+    <p *ngIf="errorMessage" class="chat-status chat-status-error">{{ errorMessage }}</p>
+
+    <app-message-input
+      (sendMessage)="addMessage($event)"
+    ></app-message-input>
+  </section>
+</main>

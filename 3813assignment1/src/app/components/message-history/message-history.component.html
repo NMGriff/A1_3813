@@ -1,0 +1,6 @@
+<section #messageHistory class="message-history">
+  <app-message
+    *ngFor="let message of messages"
+    [message]="message"
+  ></app-message>
+</section>
