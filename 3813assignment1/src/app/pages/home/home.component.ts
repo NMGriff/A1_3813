@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MessageHistoryComponent } from '../../components/message-history/message-history.component';
 import { MessageInputComponent } from '../../components/message-input/message-input.component';
 import { ChatMessage } from '../../components/message/message.component';
@@ -9,7 +10,7 @@ import { ChatChannel, ChatService } from '../../services/chat.service';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, MessageHistoryComponent, MessageInputComponent],
+  imports: [CommonModule, RouterLink, MessageHistoryComponent, MessageInputComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
@@ -29,7 +30,8 @@ export class HomeComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
-    private chatService: ChatService
+    private chatService: ChatService,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit() {
@@ -51,6 +53,12 @@ export class HomeComponent implements OnInit {
     this.chatService.getChannels().subscribe({
       next: (channels) => {
         this.channels = this.addCurrentUserFlags(channels);
+        const requestedChannelId = this.route.snapshot.queryParamMap.get('channel');
+
+        if (requestedChannelId && this.channels.some((channel) => channel.id === requestedChannelId)) {
+          this.selectedChannelId = requestedChannelId;
+        }
+
         this.isLoading = false;
 
         if (!this.channels.some((channel) => channel.id === this.selectedChannelId)) {

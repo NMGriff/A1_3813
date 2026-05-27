@@ -10,6 +10,11 @@ export type ChatChannel = {
   messages: ChatMessage[];
 };
 
+export type CreateChannelRequest = {
+  name: string;
+  description: string;
+};
+
 @Injectable({
   providedIn: 'root'
 })
@@ -20,6 +25,10 @@ export class ChatService {
 
   getChannels(): Observable<ChatChannel[]> {
     return this.http.get<ChatChannel[]>(`${this.apiUrl}/channels`);
+  }
+
+  createChannel(channel: CreateChannelRequest): Observable<ChatChannel> {
+    return this.http.post<ChatChannel>(`${this.apiUrl}/channels`, channel);
   }
 
   sendMessage(channelId: string, author: string, body: string): Observable<ChatMessage> {

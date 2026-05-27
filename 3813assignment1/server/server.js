@@ -113,6 +113,40 @@ app.get('/api/channels', (_req, res) => {
   return res.json(channels.map(publicChannel));
 });
 
+app.post('/api/channels', (req, res) => {
+  const { name, description } = req.body || {};
+  const cleanName = typeof name === 'string' ? name.trim() : '';
+  const cleanDescription = typeof description === 'string' ? description.trim() : '';
+
+  if (!cleanName) {
+    return res.status(400).json({ valid: false, error: 'Channel name is required' });
+  }
+
+  const id = cleanName
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+  if (!id) {
+    return res.status(400).json({ valid: false, error: 'Channel name must include letters or numbers' });
+  }
+
+  if (channels.some(c => c.id === id)) {
+    return res.status(409).json({ valid: false, error: 'A channel with that name already exists' });
+  }
+
+  const channel = {
+    id,
+    name: cleanName,
+    description: cleanDescription || 'No description yet.',
+    messages: []
+  };
+
+  channels.push(channel);
+
+  return res.status(201).json(publicChannel(channel));
+});
+
 app.get('/api/channels/:channelId/messages', (req, res) => {
   const channel = channels.find(c => c.id === req.params.channelId);
 
