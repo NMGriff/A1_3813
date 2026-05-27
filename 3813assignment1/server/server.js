@@ -11,6 +11,8 @@ app.use((req, res, next) => {
 });
 app.options('/api/auth', (_req, res) => res.sendStatus(200));
 app.options('/api/register', (_req, res) => res.sendStatus(200));
+app.options('/api/channels', (_req, res) => res.sendStatus(200));
+app.options('/api/channels/:channelId/messages', (_req, res) => res.sendStatus(200));
 
 class User {
   constructor(username, birthdate, age, email, password) {
@@ -29,6 +31,38 @@ const users = [
   new User('Phil', '1999-07-15', 25, 'admin2@gmail.com', '123'),
   new User('Frank', '2000-11-30', 24, 'admin3@gmail.com', '123'),
 ];
+
+const channels = [
+  {
+    id: 'global',
+    name: 'global',
+    description: 'Shared chat for everyone.',
+    messages: []
+  }
+];
+
+let nextMessageId = 1;
+
+function publicChannel(channel) {
+  return {
+    id: channel.id,
+    name: channel.name,
+    description: channel.description,
+    messages: channel.messages
+  };
+}
+
+function createMessage(author, body) {
+  const createdAt = new Date();
+
+  return {
+    id: nextMessageId++,
+    author,
+    time: createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    body,
+    createdAt: createdAt.toISOString()
+  };
+}
 
 
 app.post('/api/auth', (req, res) => {
@@ -75,5 +109,37 @@ app.post('/api/register', (req, res) => {
   });
 });
 
+app.get('/api/channels', (_req, res) => {
+  return res.json(channels.map(publicChannel));
+});
+
+app.get('/api/channels/:channelId/messages', (req, res) => {
+  const channel = channels.find(c => c.id === req.params.channelId);
+
+  if (!channel) {
+    return res.status(404).json({ valid: false, error: 'Channel not found' });
+  }
+
+  return res.json(channel.messages);
+});
+
+app.post('/api/channels/:channelId/messages', (req, res) => {
+  const { author, body } = req.body || {};
+  const channel = channels.find(c => c.id === req.params.channelId);
+
+  if (!channel) {
+    return res.status(404).json({ valid: false, error: 'Channel not found' });
+  }
+
+  if (!author || !body || !body.trim()) {
+    return res.status(400).json({ valid: false, error: 'Author and message body are required' });
+  }
+
+  const message = createMessage(author, body.trim());
+  channel.messages.push(message);
+
+  return res.status(201).json(message);
+});
+
 const PORT = 3000;
-app.listen(PORT, () => console.log(`Auth API running on http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`API running on http://localhost:${PORT}`));

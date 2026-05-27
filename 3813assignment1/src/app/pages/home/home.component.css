@@ -60,6 +60,15 @@
   padding-bottom: 1rem;
 }
 
+.chat-status {
+  margin: 0 0 0.75rem;
+  font-size: 0.9rem;
+}
+
+.chat-status-error {
+  color: #b42318;
+}
+
 @media (max-width: 767px) {
   .chat-page {
     grid-template-columns: 1fr;

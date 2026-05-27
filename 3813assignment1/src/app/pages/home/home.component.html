@@ -27,6 +27,9 @@
 
     <app-message-history [messages]="selectedChannel.messages"></app-message-history>
 
+    <p *ngIf="isLoading" class="chat-status">Loading messages...</p>
+    <p *ngIf="errorMessage" class="chat-status chat-status-error">{{ errorMessage }}</p>
+
     <app-message-input
       (sendMessage)="addMessage($event)"
     ></app-message-input>
