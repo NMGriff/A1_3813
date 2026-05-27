@@ -6,6 +6,14 @@ export type AuthResponse =
   | { valid: false }
   | { valid: true; username: string; birthdate: string; age: number; email: string };
 
+export type RegisterUser = {
+  username: string;
+  birthdate: string;
+  age: number | null;
+  email: string;
+  password: string;
+};
+
   
 @Injectable({
   providedIn: 'root'
@@ -17,6 +25,10 @@ private key = 'currentUser';
 
   login(email: string, password: string): Observable<AuthResponse> {
     return this.http.post<AuthResponse>('http://localhost:3000/api/auth', { email, password });
+  }
+
+  register(user: RegisterUser): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>('http://localhost:3000/api/register', user);
   }
 
   saveUser(user: AuthResponse) {

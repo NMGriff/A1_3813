@@ -10,6 +10,7 @@ app.use((req, res, next) => {
   next();
 });
 app.options('/api/auth', (_req, res) => res.sendStatus(200));
+app.options('/api/register', (_req, res) => res.sendStatus(200));
 
 class User {
   constructor(username, birthdate, age, email, password) {
@@ -47,6 +48,31 @@ app.post('/api/auth', (req, res) => {
   }
 
   return res.json({ valid: false });
+});
+
+app.post('/api/register', (req, res) => {
+  const { username, birthdate, age, email, password } = req.body || {};
+
+  if (!username || !birthdate || age === null || age === undefined || !email || !password) {
+    return res.json({ valid: false });
+  }
+
+  const exists = users.some(u => u.email === email);
+
+  if (exists) {
+    return res.json({ valid: false });
+  }
+
+  const user = new User(username, birthdate, Number(age), email, password);
+  users.push(user);
+
+  return res.json({
+    username: user.username,
+    birthdate: user.birthdate,
+    age: user.age,
+    email: user.email,
+    valid: true
+  });
 });
 
 const PORT = 3000;
