@@ -4,6 +4,6 @@
   <p>
     <a *ngIf="!isLoggedIn()" routerLink="/login" class="btn btn-primary me-2">Login</a>
     <a *ngIf="!isLoggedIn()" routerLink="/register" class="btn btn-primary me-2">Register</a>
-    <a routerLink="/profile" class="btn btn-secondary">Profile</a>
+    <a *ngIf="isLoggedIn()" routerLink="/profile" class="btn btn-secondary">Profile</a>
   </p>
 </div>
