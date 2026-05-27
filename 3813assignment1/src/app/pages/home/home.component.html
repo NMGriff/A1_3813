@@ -2,8 +2,8 @@
   <h2>Home</h2>
 
   <p>
-    <a routerLink="/login" class="btn btn-primary me-2">Login</a>
-    <a routerLink="/register" class="btn btn-primary me-2">Register</a>
+    <a *ngIf="!isLoggedIn()" routerLink="/login" class="btn btn-primary me-2">Login</a>
+    <a *ngIf="!isLoggedIn()" routerLink="/register" class="btn btn-primary me-2">Register</a>
     <a routerLink="/profile" class="btn btn-secondary">Profile</a>
   </p>
 </div>

@@ -40,6 +40,11 @@ private key = 'currentUser';
     return raw ? (JSON.parse(raw) as AuthResponse) : null;   
   }
 
+  isLoggedIn(): boolean {
+    const user = this.getUser();
+    return !!(user && user.valid);
+  }
+
   logout() {
     localStorage.removeItem(this.key);
   }

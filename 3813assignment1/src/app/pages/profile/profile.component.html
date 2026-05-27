@@ -30,6 +30,6 @@
     </div>
   </ng-template>
 
-  <a routerLink="/login" class="btn btn-primary me-2">Back to Login</a>
+  <a *ngIf="!user" routerLink="/login" class="btn btn-primary me-2">Back to Login</a>
   <a routerLink="/" class="btn btn-secondary">Home</a>
 </div>
