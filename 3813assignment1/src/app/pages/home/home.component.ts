@@ -29,6 +29,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   isLoading = false;
   errorMessage = '';
   private messageCreatedSubscription?: Subscription;
+  private channelCreatedSubscription?: Subscription;
 
   constructor(
     private authService: AuthService,
@@ -41,10 +42,14 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.messageCreatedSubscription = this.chatService.onMessageCreated().subscribe(({ channelId, message }) => {
       this.addMessageToChannel(channelId, message);
     });
+    this.channelCreatedSubscription = this.chatService.onChannelCreated().subscribe((channel) => {
+      this.addChannel(channel);
+    });
   }
 
   ngOnDestroy() {
     this.messageCreatedSubscription?.unsubscribe();
+    this.channelCreatedSubscription?.unsubscribe();
   }
 
   get selectedChannel(): ChatChannel {
@@ -129,5 +134,19 @@ export class HomeComponent implements OnInit, OnDestroy {
         ]
       };
     });
+  }
+
+  private addChannel(channel: ChatChannel) {
+    if (this.channels.some((existingChannel) => existingChannel.id === channel.id)) {
+      return;
+    }
+
+    this.channels = [
+      ...this.channels,
+      {
+        ...channel,
+        messages: channel.messages || []
+      }
+    ];
   }
 }

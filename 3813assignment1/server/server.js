@@ -153,6 +153,7 @@ app.post('/api/channels', (req, res) => {
   };
 
   channels.push(channel);
+  io.emit('channel:created', publicChannel(channel));
 
   return res.status(201).json(publicChannel(channel));
 });

@@ -56,4 +56,16 @@ export class ChatService {
       };
     });
   }
+
+  onChannelCreated(): Observable<ChatChannel> {
+    return new Observable<ChatChannel>((subscriber) => {
+      const handler = (channel: ChatChannel) => subscriber.next(channel);
+
+      this.socket.on('channel:created', handler);
+
+      return () => {
+        this.socket.off('channel:created', handler);
+      };
+    });
+  }
 }
