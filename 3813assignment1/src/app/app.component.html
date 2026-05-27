@@ -1,9 +1,9 @@
-<nav class="p-3 border-bottom">
-  <a *ngIf="isLoggedIn()" routerLink="/" class="me-3">Home</a>
-  <a *ngIf="!isLoggedIn()" routerLink="/login" class="me-3">Login</a>
-  <a *ngIf="!isLoggedIn()" routerLink="/register" class="me-3">Register</a>
-  <a *ngIf="isLoggedIn()" routerLink="/profile" class="me-3">Profile</a>
-  <button *ngIf="isLoggedIn()" type="button" class="btn btn-outline-danger btn-sm" (click)="logout()">Logout</button>
+<nav>
+  <button *ngIf="isLoggedIn()" type="button" routerLink="/">Chat</button>
+  <button *ngIf="!isLoggedIn()" type="button" routerLink="/login">Login</button>
+  <button *ngIf="!isLoggedIn()" type="button" routerLink="/register">Register</button>
+  <button *ngIf="isLoggedIn()" type="button" routerLink="/profile">Profile</button>
+  <button *ngIf="isLoggedIn()" type="button" (click)="logout()">Logout</button>
 </nav>
 
 <router-outlet></router-outlet>
