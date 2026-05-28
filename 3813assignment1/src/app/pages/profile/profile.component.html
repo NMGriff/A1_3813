@@ -21,7 +21,17 @@
       <input [(ngModel)]="user.email" name="email" />
     </div>
 
+    <div class="mb-3">
+      <label>Role</label>
+      <input [value]="user.role" disabled />
+    </div>
+
+    <div class="alert alert-danger mt-3" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </div>
+
     <button type="button" (click)="save()">Save</button>
+    <button type="button" (click)="deleteMe()">Delete my account</button>
   </div>
 
   <ng-template #notLoggedIn>
