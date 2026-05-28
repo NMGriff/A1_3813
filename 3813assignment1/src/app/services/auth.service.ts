@@ -2,9 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+export type UserRole = 'super-admin' | 'group-admin' | 'user';
+
 export type AuthResponse =
   | { valid: false }
-  | { valid: true; username: string; birthdate: string; age: number; email: string };
+  | { valid: true; username: string; birthdate: string; age: number; email: string; role: UserRole };
 
 export type RegisterUser = {
   username: string;
@@ -47,5 +49,15 @@ private key = 'currentUser';
 
   logout() {
     localStorage.removeItem(this.key);
+  }
+
+  isSuperAdmin(): boolean {
+    const user = this.getUser();
+    return !!(user && user.valid && user.role === 'super-admin');
+  }
+
+  isGroupAdmin(): boolean {
+    const user = this.getUser();
+    return !!(user && user.valid && (user.role === 'group-admin' || user.role === 'super-admin'));
   }
 }
