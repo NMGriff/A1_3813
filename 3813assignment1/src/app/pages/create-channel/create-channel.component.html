@@ -6,6 +6,19 @@
     </header>
 
     <form (ngSubmit)="createChannel()">
+      <label for="group">Group</label>
+      <select
+        id="group"
+        name="group"
+        [(ngModel)]="selectedGroupId"
+        required
+      >
+        <option value="" disabled>Select a group</option>
+        <option *ngFor="let group of groups" [value]="group.id">
+          {{ group.name }}
+        </option>
+      </select>
+
       <label for="channel-name">Name</label>
       <input
         id="channel-name"
@@ -26,10 +39,13 @@
       ></textarea>
 
       <p *ngIf="errorMessage" class="form-error">{{ errorMessage }}</p>
+      <p *ngIf="!errorMessage && !groups.length" class="form-error">
+        You can only create channels in groups you administer.
+      </p>
 
       <div class="form-actions">
         <button type="button" routerLink="/">Cancel</button>
-        <button type="submit" [disabled]="isSaving">
+        <button type="submit" [disabled]="isSaving || !groups.length">
           {{ isSaving ? 'Creating...' : 'Create channel' }}
         </button>
       </div>

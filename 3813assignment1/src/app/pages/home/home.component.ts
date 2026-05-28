@@ -6,7 +6,7 @@ import { MessageHistoryComponent } from '../../components/message-history/messag
 import { MessageInputComponent } from '../../components/message-input/message-input.component';
 import { ChatMessage } from '../../components/message/message.component';
 import { AuthService } from '../../services/auth.service';
-import { ChatChannel, ChatService } from '../../services/chat.service';
+import { ChatChannel, ChatGroup, ChatService } from '../../services/chat.service';
 
 @Component({
   selector: 'app-home',
@@ -18,18 +18,24 @@ import { ChatChannel, ChatService } from '../../services/chat.service';
 export class HomeComponent implements OnInit, OnDestroy {
   channels: ChatChannel[] = [
     {
-      id: 'global',
-      name: 'global',
+      id: 'general',
+      groupId: 'global',
+      groupName: 'Global',
+      name: 'general',
       description: 'Shared chat for everyone.',
+      bannedUsernames: [],
       messages: []
     }
   ];
 
-  selectedChannelId = this.channels[0].id;
+  selectedChannelId = this.channelKey(this.channels[0]);
+  groups: ChatGroup[] = [];
   isLoading = false;
   errorMessage = '';
+  groupMessage = '';
   private messageCreatedSubscription?: Subscription;
   private channelCreatedSubscription?: Subscription;
+  private groupsChangedSubscription?: Subscription;
 
   constructor(
     private authService: AuthService,
@@ -45,38 +51,50 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.channelCreatedSubscription = this.chatService.onChannelCreated().subscribe((channel) => {
       this.addChannel(channel);
     });
+    this.groupsChangedSubscription = this.chatService.onGroupsChanged().subscribe(() => {
+      this.loadGroups();
+      this.loadChannels();
+    });
   }
 
   ngOnDestroy() {
     this.messageCreatedSubscription?.unsubscribe();
     this.channelCreatedSubscription?.unsubscribe();
+    this.groupsChangedSubscription?.unsubscribe();
   }
 
   get selectedChannel(): ChatChannel {
-    return this.channels.find((channel) => channel.id === this.selectedChannelId) || this.channels[0];
+    return this.channels.find((channel) => this.channelKey(channel) === this.selectedChannelId) || this.channels[0];
   }
 
-  selectChannel(channelId: string) {
-    this.selectedChannelId = channelId;
+  channelKey(channel: ChatChannel): string {
+    return `${channel.groupId}/${channel.id}`;
+  }
+
+  selectChannel(channel: ChatChannel) {
+    this.selectedChannelId = this.channelKey(channel);
   }
 
   loadChannels() {
+    const user = this.authService.getUser();
+    const username = user?.valid ? user.username : '';
+
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.chatService.getChannels().subscribe({
+    this.chatService.getChannels(username).subscribe({
       next: (channels) => {
         this.channels = this.addCurrentUserFlags(channels);
         const requestedChannelId = this.route.snapshot.queryParamMap.get('channel');
 
-        if (requestedChannelId && this.channels.some((channel) => channel.id === requestedChannelId)) {
+        if (requestedChannelId && this.channels.some((channel) => this.channelKey(channel) === requestedChannelId)) {
           this.selectedChannelId = requestedChannelId;
         }
 
         this.isLoading = false;
 
-        if (!this.channels.some((channel) => channel.id === this.selectedChannelId)) {
-          this.selectedChannelId = this.channels[0]?.id || 'global';
+        if (!this.channels.some((channel) => this.channelKey(channel) === this.selectedChannelId)) {
+          this.selectedChannelId = this.channels[0] ? this.channelKey(this.channels[0]) : 'global/general';
         }
       },
       error: () => {
@@ -84,21 +102,79 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       }
     });
+
+    this.loadGroups();
+  }
+
+  loadGroups() {
+    const user = this.authService.getUser();
+    const username = user?.valid ? user.username : '';
+
+    this.chatService.getGroups(username).subscribe({
+      next: (groups) => {
+        this.groups = groups;
+      },
+      error: () => {
+        this.groupMessage = 'Unable to load groups.';
+      }
+    });
   }
 
   addMessage(message: string) {
     const user = this.authService.getUser();
     const author = user?.valid ? user.username : 'Guest';
-    const channelId = this.selectedChannel.id;
+    const channel = this.selectedChannel;
 
     this.errorMessage = '';
 
-    this.chatService.sendMessage(channelId, author, message).subscribe({
+    this.chatService.sendMessage(channel.groupId, channel.id, author, message).subscribe({
       next: () => {},
-      error: () => {
-        this.errorMessage = 'Unable to send message.';
+      error: (error) => {
+        this.errorMessage = error?.error?.error || 'Unable to send message.';
       }
     });
+  }
+
+  requestGroupAccess(group: ChatGroup) {
+    const user = this.authService.getUser();
+
+    if (!user?.valid) {
+      return;
+    }
+
+    this.groupMessage = '';
+    this.chatService.registerGroupInterest(user.username, group.id).subscribe({
+      next: () => {
+        this.groupMessage = `Interest registered for ${group.name}.`;
+        this.loadGroups();
+      },
+      error: (error) => {
+        this.groupMessage = error?.error?.error || 'Unable to register interest.';
+      }
+    });
+  }
+
+  leaveGroup(group: ChatGroup) {
+    const user = this.authService.getUser();
+
+    if (!user?.valid) {
+      return;
+    }
+
+    this.groupMessage = '';
+    this.chatService.removeGroupMember(user.username, group.id, user.username).subscribe({
+      next: () => {
+        this.groupMessage = `You left ${group.name}.`;
+        this.loadChannels();
+      },
+      error: (error) => {
+        this.groupMessage = error?.error?.error || 'Unable to leave group.';
+      }
+    });
+  }
+
+  canCreateChannels(): boolean {
+    return this.authService.isGroupAdmin();
   }
 
   private addCurrentUserFlags(channels: ChatChannel[]): ChatChannel[] {
@@ -137,7 +213,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private addChannel(channel: ChatChannel) {
-    if (this.channels.some((existingChannel) => existingChannel.id === channel.id)) {
+    if (this.channels.some((existingChannel) => this.channelKey(existingChannel) === this.channelKey(channel))) {
       return;
     }
 

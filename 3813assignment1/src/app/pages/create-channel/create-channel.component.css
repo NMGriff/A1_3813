@@ -28,6 +28,7 @@
 }
 
 .create-channel-panel input,
+.create-channel-panel select,
 .create-channel-panel textarea {
   width: 100%;
   padding: 0.55rem;

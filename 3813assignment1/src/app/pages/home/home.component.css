@@ -47,9 +47,43 @@
   font-weight: 700;
 }
 
+.active-channel {
+  border-color: #1f6feb;
+}
+
 .create-channel-button {
   width: 100%;
   margin: 0;
+}
+
+.group-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border-top: 1px solid #d0d7de;
+  padding-top: 1rem;
+}
+
+.group-list h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.group-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.group-row div {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.group-row small {
+  color: #57606a;
 }
 
 .chat-window {

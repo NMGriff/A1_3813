@@ -9,32 +9,64 @@
         *ngFor="let channel of channels"
         type="button"
         class="channel-button"
-        (click)="selectChannel(channel.id)"
+        [class.active-channel]="channelKey(channel) === selectedChannelId"
+        (click)="selectChannel(channel)"
       >
-        <span>{{ channel.name }}</span>
+        <span>{{ channel.groupName }} / {{ channel.name }}</span>
         <small>{{ channel.messages.length }} messages</small>
       </button>
     </nav>
 
-    <button type="button" class="create-channel-button" routerLink="/channels/new">
+    <button *ngIf="canCreateChannels()" type="button" class="create-channel-button" routerLink="/channels/new">
       Create channel
     </button>
+
+    <section class="group-list">
+      <h3>Groups</h3>
+      <article *ngFor="let group of groups" class="group-row">
+        <div>
+          <strong>{{ group.name }}</strong>
+          <small>
+            {{ group.isMember ? 'Member' : group.isPending ? 'Pending' : 'Not joined' }}
+          </small>
+        </div>
+        <button
+          *ngIf="!group.isMember && !group.isPending"
+          type="button"
+          (click)="requestGroupAccess(group)"
+        >
+          Request
+        </button>
+        <button
+          *ngIf="group.isMember"
+          type="button"
+          (click)="leaveGroup(group)"
+        >
+          Leave
+        </button>
+      </article>
+      <p *ngIf="groupMessage" class="chat-status">{{ groupMessage }}</p>
+    </section>
   </aside>
 
   <section class="chat-window">
     <header class="chat-header">
       <div>
-        <h1>{{ selectedChannel.name }}</h1>
+        <h1>{{ selectedChannel.groupName }} / {{ selectedChannel.name }}</h1>
         <p>{{ selectedChannel.description }}</p>
       </div>
     </header>
 
-    <app-message-history [messages]="selectedChannel.messages"></app-message-history>
+    <app-message-history *ngIf="channels.length" [messages]="selectedChannel.messages"></app-message-history>
+    <p *ngIf="!channels.length && !isLoading" class="chat-status">
+      You are not a member of any groups with channels yet.
+    </p>
 
     <p *ngIf="isLoading" class="chat-status">Loading messages...</p>
     <p *ngIf="errorMessage" class="chat-status chat-status-error">{{ errorMessage }}</p>
 
     <app-message-input
+      *ngIf="channels.length"
       (sendMessage)="addMessage($event)"
     ></app-message-input>
   </section>
