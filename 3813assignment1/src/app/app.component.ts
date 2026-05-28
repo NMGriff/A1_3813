@@ -18,6 +18,10 @@ isLoggedIn(): boolean {
   return this.auth.isLoggedIn();
 }
 
+canUseAdminPage(): boolean {
+  return this.auth.isGroupAdmin();
+}
+
 logout() {
   this.auth.logout();
   this.router.navigate(['/login']);

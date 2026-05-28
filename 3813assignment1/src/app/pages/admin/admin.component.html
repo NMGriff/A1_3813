@@ -1,0 +1,135 @@
+<main class="admin-page">
+  <header>
+    <h1>Permissions</h1>
+    <p *ngIf="currentUser">{{ currentUser.username }} - {{ roleLabel(currentUser.role) }}</p>
+  </header>
+
+  <p *ngIf="!canUseAdminPage" class="notice error">Only Group Admins and Super Admins can use this page.</p>
+  <p *ngIf="statusMessage" class="notice success">{{ statusMessage }}</p>
+  <p *ngIf="errorMessage" class="notice error">{{ errorMessage }}</p>
+
+  <section *ngIf="canUseAdminPage" class="admin-section">
+    <h2>Create group</h2>
+    <form class="inline-form" (ngSubmit)="createGroup()">
+      <input
+        name="groupName"
+        type="text"
+        placeholder="Group name"
+        [(ngModel)]="newGroupName"
+        required
+      />
+      <input
+        name="groupDescription"
+        type="text"
+        placeholder="Description"
+        [(ngModel)]="newGroupDescription"
+      />
+      <button type="submit">Create</button>
+    </form>
+  </section>
+
+  <section *ngIf="isSuperAdmin" class="admin-section">
+    <h2>Users</h2>
+    <div class="table-list">
+      <article *ngFor="let user of users" class="user-row">
+        <div>
+          <strong>{{ user.username }}</strong>
+          <small>{{ user.email }}</small>
+        </div>
+        <select
+          [ngModel]="user.role"
+          (ngModelChange)="changeRole(user, $event)"
+          [name]="'role-' + user.username"
+        >
+          <option *ngFor="let role of roles" [ngValue]="role">{{ roleLabel(role) }}</option>
+        </select>
+        <button type="button" (click)="deleteUser(user.username)" [disabled]="user.username === currentUser?.username">
+          Remove
+        </button>
+      </article>
+    </div>
+  </section>
+
+  <section *ngIf="canUseAdminPage" class="admin-section">
+    <h2>Groups</h2>
+
+    <article *ngFor="let group of groups" class="group-card">
+      <header>
+        <div>
+          <h3>{{ group.name }}</h3>
+          <p>{{ group.description }}</p>
+          <small>Created by {{ group.createdBy }}</small>
+        </div>
+        <button *ngIf="group.canManage" type="button" (click)="deleteGroup(group)">
+          Delete group
+        </button>
+      </header>
+
+      <div *ngIf="group.canManage" class="management-grid">
+        <section>
+          <h4>Pending users</h4>
+          <p *ngIf="!group.pendingUsernames.length" class="muted">No pending requests.</p>
+          <div *ngFor="let username of group.pendingUsernames" class="compact-row">
+            <span>{{ username }}</span>
+            <button type="button" (click)="approveMember(group, username)">Add</button>
+          </div>
+        </section>
+
+        <section>
+          <h4>Members</h4>
+          <div *ngFor="let username of group.memberUsernames" class="compact-row">
+            <span>{{ username }}</span>
+            <button type="button" (click)="removeMember(group, username)" [disabled]="username === group.createdBy">
+              Remove
+            </button>
+          </div>
+        </section>
+      </div>
+
+      <section *ngIf="group.canManage" class="channel-tools">
+        <h4>Create channel</h4>
+        <form class="inline-form" (ngSubmit)="createChannel(group)">
+          <input
+            [name]="'channel-name-' + group.id"
+            type="text"
+            placeholder="Channel name"
+            [(ngModel)]="channelForms[group.id].name"
+            required
+          />
+          <input
+            [name]="'channel-description-' + group.id"
+            type="text"
+            placeholder="Description"
+            [(ngModel)]="channelForms[group.id].description"
+          />
+          <button type="submit">Create</button>
+        </form>
+      </section>
+
+      <section>
+        <h4>Channels</h4>
+        <p *ngIf="!group.channels.length" class="muted">No channels yet.</p>
+        <article *ngFor="let channel of group.channels" class="channel-row">
+          <div>
+            <strong>{{ channel.name }}</strong>
+            <small>{{ channel.description }}</small>
+            <small *ngIf="channel.bannedUsernames.length">
+              Banned: {{ channel.bannedUsernames.join(', ') }}
+            </small>
+          </div>
+          <div *ngIf="group.canManage" class="channel-actions">
+            <select
+              [name]="'ban-' + group.id + '-' + channel.id"
+              [(ngModel)]="banForms[group.id + '/' + channel.id]"
+            >
+              <option value="">Ban user</option>
+              <option *ngFor="let username of group.memberUsernames" [value]="username">{{ username }}</option>
+            </select>
+            <button type="button" (click)="banUser(group, channel.id)">Ban</button>
+            <button type="button" (click)="deleteChannel(group, channel.id)">Delete</button>
+          </div>
+        </article>
+      </section>
+    </article>
+  </section>
+</main>

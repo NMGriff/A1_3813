@@ -3,6 +3,7 @@
   <button *ngIf="!isLoggedIn()" type="button" routerLink="/login">Login</button>
   <button *ngIf="!isLoggedIn()" type="button" routerLink="/register">Register</button>
   <button *ngIf="isLoggedIn()" type="button" routerLink="/profile">Profile</button>
+  <button *ngIf="canUseAdminPage()" type="button" routerLink="/admin">Permissions</button>
   <button *ngIf="isLoggedIn()" type="button" (click)="logout()">Logout</button>
 </nav>
 
